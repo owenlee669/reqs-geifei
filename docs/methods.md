@@ -1,6 +1,6 @@
 # 需求挖掘方法合并与原始证据
 
-更新：2026-11-13（Issue #1 第四轮复审，配合 SOP v0.5）。来源：仓库已有的三篇 Web.Cafe 剪存 Markdown（见文末）。它们是**方法分享和作者自述**，不是我们已实测验证的市场机会。归并相同动作，不因平台名称不同就重复执行。
+更新：2026-11-13（Issue #1 第五轮复审，配合 SOP v0.6）。来源：仓库已有的三篇 Web.Cafe 剪存 Markdown（见文末）。它们是**方法分享和作者自述**，不是我们已实测验证的市场机会。归并相同动作，不因平台名称不同就重复执行。
 
 ## 统一流程
 
@@ -20,12 +20,12 @@
 
 ### M02 头部/竞品 sitemap 增量，反推新词（P0）
 **入口**：公开 sitemap.xml / sitemap index、工具目录分类页、竞品新功能页。  
-**步骤**：首次 URL 快照保存为 `data/sitemaps/<domain>.txt`（域名转小写且去除不安全路径字符）；再次扫描读取旧快照，先生成新快照并确认成功，再将旧版归档至 `data/sitemaps/archive/<domain>/<YYYY-MM-DDTHHMMSS>.txt`，归档成功后更新当前快照；**每域名归档只保留最近 12 份**，其余清理，清理失败要记录 → 比对规范化 URL 差集（不单凭 lastmod）→ 排除参数、语言/分页/模板重复 → 提取新增 URL 的 title/H1/正文用户动作 → 生成英文关键词并做 SERP 验证。`data/opportunities.jsonl` 仅保存相关新增 URL 摘要、数量和来源，不存整份 sitemap。**首次扫描只有基线，不得宣称新增**；访问失败保留旧快照，标记 blocked，不能覆盖为空。  
+**步骤**：首次 URL 快照保存为 `data/sitemaps/<domain>.txt`（域名转小写且去除不安全路径字符）；再次扫描读取旧快照，先生成新快照并确认成功，再将旧版归档至 `data/sitemaps/archive/<domain>/<YYYY-MM-DDTHHMMSS+08>.txt`，归档成功后更新当前快照；**每域名归档只保留最近 12 份**，其余清理，清理失败要记录 → 比对规范化 URL 差集（不单凭 lastmod）→ 排除参数、语言/分页/模板重复 → 提取新增 URL 的 title/H1/正文用户动作 → 生成英文关键词并做 SERP 验证。`data/opportunities.jsonl` 仅保存相关新增 URL 摘要、数量和来源，不存整份 sitemap。**首次扫描只有基线，不得宣称新增**；访问失败保留旧快照，标记 blocked，不能覆盖为空。  
 **限制**：大站上新页面是“投资布局信号”，不是已证明流量/收入。  
 **依据**：[私藏方法](https://new.web.cafe/ask/bounty/fd0wrgx7fh)；[验证方法](https://new.web.cafe/ask/bounty/k3ivgzypq1)。
 
 ### M03 词根扩展 + 站找词/词找站 + SERP 实查（P0）
-**入口**：Similarweb 关键词生成器、Semrush Keyword Magic/Gap、Ahrefs Top Pages/Content Gap、Google 联想/PAA/相关搜索、Keyword Planner、哥飞 KD。  
+**入口（自动/人工分工）**：自动侧只使用无需登录可访问的 Google 联想、PAA、相关搜索和公开 SERP 页面；Similarweb 关键词生成器、Semrush Keyword Magic/Gap、Ahrefs Top Pages/Content Gap、Keyword Planner、哥飞 KD 等需登录、付费或授权数据均转人工；无法取得的 volume/KD/CPC 记 `unknown`，不以缺数据淘汰线索，不编造数字。  
 **步骤**：从产品功能或用户原话提词根 → 扩展长尾与不同语言的概念词根 → 归一化、去重，排除错意图品牌词 → 查搜索量/KD/CPC/趋势（有数据才填写）→ 实查 SERP 的结果类型、独立站、低权重站、搜索意图匹配度 → 形成候选。  
 **工具型 SERP 供给缺口**：查询明确要求计算、生成、转换、批量处理或下载，但公开可核验的前列结果主要是文章、问答、视频且缺少实际工具页面，记为 potential-tool-gap；保存搜索地区、日期和实际看到的 URL。只有核验完整前十才能称「前十无工具页」，否则表述为「可见结果未找到」。这是候选信号，不单独构成已验证机会。  
 **原文案例**：程序员卡诺称将 119 个词根扩成 1,309，再扩展 9 万余关键词，二轮筛到 800 余条；原文另有「月搜索 3 万、KD<60」但本次剪存段落无法可靠将该阈值对应到确切作者，故不作为可执行数值门槛，待人工核对作者与出处后再引用。这两者都是个人筛法，不能作为默认硬门槛；小站更看重 SERP、低竞争、开发成本。  
@@ -40,7 +40,7 @@
 **依据**：[私藏方法](https://new.web.cafe/ask/bounty/fd0wrgx7fh)。
 
 ### M05 软件差评/替代品，寻找已验证市场中的缺口（P0）
-**入口**：G2、Capterra、Trustpilot、Google Play、App Store、Chrome Web Store、Shopify App Store、WordPress 插件、AlternativeTo、Reddit、YouTube 测评区。  
+**入口（自动/人工分工）**：自动侧只阅读能直接访问的 G2/Capterra 公共评论、Trustpilot、Google Play、App Store、Chrome Web Store、Shopify App Store、WordPress 插件页、AlternativeTo、Reddit、YouTube 测评区等公开页面；若 G2、Capterra、商店后台、评论接口等要求登录、付费或限制访问，则转人工提供授权截图/导出，标记 `unknown` / `blocked`；不绕限制抓取，也不因不可得直接淘汰需求。  
 **步骤**：选有真实用户的成熟产品 → 查近期 1–3 星及中评/Cons/功能请求 → 保留具体评论 URL、日期、原话和场景 → 聚类「贵、慢、批量不足、兼容失败、隐私、缺功能」 → 不同作者/不同平台寻找重复证据 → 查有没有已付费替代产品 → 形成单一功能 MVP。  
 **原文提示**：安装量较大但评分 3.5–4.3 的 Chrome 扩展作为初筛；不是硬标准。  
 **依据**：[私藏方法](https://new.web.cafe/ask/bounty/fd0wrgx7fh)；[网站和页面](https://new.web.cafe/ask/bounty/0jch5yv6g7)。
@@ -70,7 +70,7 @@
 **依据**：[私藏方法](https://new.web.cafe/ask/bounty/fd0wrgx7fh)。
 
 ### M10 平台子域名和导航站出站流量（P1）
-**入口**：`vercel.app`、`pages.dev`、`github.io` 子域名；导航站出站链接；Similarweb 落地页。  
+**入口（自动/人工分工）**：自动侧检查可公开访问的 `vercel.app`、`pages.dev`、`github.io` 子域名、导航站公开出站链接、搜索引擎可见落地页；Similarweb 落地页/流量估计需登录或授权时转人工，无法取得记 `unknown`，不直接淘汰候选。  
 **步骤**：找近期起量的公开子站 → 检查是否为真实项目而非预览/演示 → 合并同项目不同部署 → 找其自然搜索页、非品牌词 → SERP/竞争/商用验证。  
 **依据**：[验证方法](https://new.web.cafe/ask/bounty/k3ivgzypq1)。
 
