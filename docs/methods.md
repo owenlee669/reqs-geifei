@@ -1,6 +1,6 @@
 # 需求挖掘方法合并与原始证据
 
-更新：2026-11-13（Issue #1 修订）。来源：仓库已有的三篇 Web.Cafe 剪存 Markdown（见文末）。它们是**方法分享和作者自述**，不是我们已实测验证的市场机会。归并相同动作，不因平台名称不同就重复执行。
+更新：2026-11-13（Issue #1 第二轮复审，配合 SOP v0.3）。来源：仓库已有的三篇 Web.Cafe 剪存 Markdown（见文末）。它们是**方法分享和作者自述**，不是我们已实测验证的市场机会。归并相同动作，不因平台名称不同就重复执行。
 
 ## 统一流程
 
@@ -13,7 +13,7 @@
 ### M01 新产品榜单 / 增长站反查非品牌关键词（P0）
 **入口**：Product Hunt 每日新品、Toolify 新品/增长/收入榜、Traffic.cv、BetaList、V2EX 分享创造、Indie Hackers 收入案例、[Google Play 付费应用榜入口](https://play.google.com/store/apps)、[Apple App Store 榜单](https://apps.apple.com/us/iphone/charts)。付费榜是支付意图与市场存在的线索，不证明具体收入，需记录地域、榜单日期与类别。  
 **步骤**：读取榜单及项目主页 URL → 域名去重 → 核查产品解决的用户动作与收费模式 → 通过 Similarweb/Semrush/Ahrefs（可获得时）找主要流量落地页、自然搜索词、来源地区 → 剔除纯品牌词 → 取 1–3 个真实用户会搜索的需求词 → 实际查看 Google SERP/竞争网站。付费 App 同时查看低星评论、具体功能和是否存在网页版需求。  
-**原文案例**：benny 建议从 Product Hunt API 获取前一天产品，筛「域龄少于 1 年、月流量 >3,000、自然搜索/直接访问占比均 >20%」，称约每 300 个 PH 产品筛出一个。属于个人经验阈值，不能当做普遍真实转化率。  
+**原文案例（仅供人工复核，自动任务不得作为硬过滤条件）**：benny 建议 Product Hunt API 获取前一天产品，再检查「域龄 <1 年、月流量 >3,000、自然搜索占比 >20%、直接访问占比 >20%」，称约每 300 个 PH 产品筛出一个。以上是作者个人经验，均需有对应时间和来源数据才能应用。自动扫描默认只用公开可访问的产品发布日期、功能、定价、用户反馈与页面证据入库；未授权的 Similarweb 估计流量与渠道占比一律记 `unknown`，不臆测域龄或流量，也不因缺数据淘汰新站。  
 **原始依据**：[私藏方法](https://new.web.cafe/ask/bounty/fd0wrgx7fh)；[网站和页面](https://new.web.cafe/ask/bounty/0jch5yv6g7)。
 
 ### M02 头部/竞品 sitemap 增量，反推新词（P0）
@@ -51,7 +51,7 @@
 
 ### M07 人工付费服务/笨重流程 → 轻量工具（P1）
 **入口**：Fiverr、Upwork、Freelancer、闲鱼/淘宝代做服务、招聘 JD、复杂 Excel、20–30 步教程、多个工具手工拼接。  
-**步骤**：记录有公开报价/订单的重复任务 → 拆分输入-处理-输出 → 判断能否用现成 API/开源/轻代码自动化 → 查英语地区同类需求和搜索方式 → 做单页/人工交付验证。  
+**步骤（周六固定监控）**：检索可公开访问的 Fiverr、Upwork、Freelancer 的真实服务/任务 → 保存具体任务链接、日期、报价币种与范围、是否已成交的可核实信息（只见报价不等于成交）→ 将重复人工任务拆分输入-处理-输出 → 判断现成 API/开源/轻代码的可行性 → 查英语地区搜索意图 → 做单页/人工交付验证。登录墙、反爬或报价不可见时标记 blocked，不臆测订单。  
 **限制**：中国市场订单不能直接证明英语国家购买。  
 **依据**：[私藏方法](https://new.web.cafe/ask/bounty/fd0wrgx7fh)。
 
@@ -73,7 +73,7 @@
 **依据**：[验证方法](https://new.web.cafe/ask/bounty/k3ivgzypq1)。
 
 ### M11 自有 GSC 查询 × GA4 页面指标（P1）
-**入口**：有授权的网站自己的 Google Search Console 与 GA4 数据。  
+**入口与数据投递**：只能读取用户授权放置于仓库 `inputs/gsc-ga4/` 的两类 CSV：`gsc_queries_pages_YYYY-MM-DD.csv`（至少 date、query、page、clicks、impressions、ctr、position）与 `ga4_landing_pages_YYYY-MM-DD.csv`（至少 date、landing_page、sessions、engagement_rate、average_engagement_time）；记录对应站点、属性、时区、起止日期和统计粒度。没有导出文件、缺字段或未经授权：**跳过 M11，记 `blocked: missing/invalid user exports`**。该仓库是公开的，只放聚合报表，严禁个人数据或密钥。  
 **步骤**：导出近 28 天查询-落地页数据 → 对齐 GA4 页面维度 → 看高曝光低 CTR、排名 8–20，以及点击后参与差的页面 → 核查搜索意图和页面内容差距 → 决定完善原页或开发独立工具。  
 **原文建议**：「点击>10 且停留<30秒」仅是作者的示例阈值；低参与不必然等于需求。  
 **依据**：[私藏方法](https://new.web.cafe/ask/bounty/fd0wrgx7fh)。
