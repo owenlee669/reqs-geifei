@@ -1,10 +1,17 @@
-# GPT 需求发现定时任务 SOP 草案（待用户审核，未启用）
+# GPT 需求发现任务 SOP（正式定稿）
 
-版本 v0.6 / 2026-11-13（Issue #1 第五轮复审修订）。此文件是供未来 GPT 自动任务读取的执行规格，**并未创建任何定时任务**。
+版本 **v1.0 / 2026-11-13**（Issue #1 最终定稿）。本文件已完成规则定稿及一次手动写库试测；**尚未创建或启用本仓库对应的定时任务**，端到端长期稳定性仍待运行验证。
 
 ## 文档权责
 
 本文件是唯一执行规范：**状态定义、升级门槛、评分、去重键、周轮换、写入规则**只能在这里维护。`docs/methods.md` 只描述 M01–M12 的操作、证据类型、可用数据源及限制。发生表述不同时以本 SOP 为准，修订时同步检查方法文档是否仍有相互冲突的陈述。
+
+## 与既有 ABCD 任务的边界
+
+- 既有 `owenlee669/Daily-Requirements` 的 ABCD / Demand Discovery Engine 体系负责竞品 Sitemap 发现、新 URL 差分与 SEO 新页面监控。**本任务不自行抓取、保存、归档、比对或定时巡检任何 Sitemap**，不负责补跑旧任务、也不擅自开启已暂停的旧任务。
+- `M02` **保留在 `docs/methods.md` 作为参考方法**，从本任务固定轮换和自动提示词中移除；若用户未来提供已有 Sitemap 差分结果或旧任务报告，可作为**外部线索**送入正常证据、SERP、商业化核验流程，须注明来源、日期和是否真实增量；不能把导入线索当作本任务独立监控成果。
+- 本任务专注新品与付费产品线索、差评和社区抱怨、公开商业证据、关键词/SERP 核查、7 天 MVP 判断、去重评分。涉及 `M10` 平台子域名，仅允许查询公开页面与现有旧监控报告，**不执行 Sitemap 抓取及 URL 差分**；发现与 ABCD 同一机会时以稳定 ID 去重，避免重复推荐。
+- 原 `reports/2026-11-13.md` 中的 M01+M02 手动测试为**历史验收记录**，不追溯修改；当时未成功取得 sitemap 快照，也不能用它证明正式版本 M02 仍在轮换。
 
 ## 目标
 发现适合单人低成本运营、英语 SEO 可获客的精品工具页、Micro SaaS、AI 图片/视频细分工具及 H5 游戏相关需求。优先开发验证时间在 7 天内、总计约 8–12 工时以内、可复用 Next.js/React/Tailwind/Cloudflare 或 Vercel 的机会。先需求验证，不直接开发。
@@ -19,7 +26,7 @@
 
 | 星期 | 方法组合 | 工作重点 |
 |---|---|---|
-| 周一 | M01 + M02 | 产品/付费 App 榜单和新增 sitemap 页面 |
+| 周一 | M01 + M03 | 新品/付费 App 榜单 → 英文搜索意图与公开 SERP 验证 |
 | 周二 | M05 + M06 | 差评、替代品和社区抱怨 |
 | 周三 | M03 + M04 | 关键词扩展、公开 SERP 与付费墙 |
 | 周四 | M08 + M09 | 新游戏/AI 模型与 GitHub Skills/Issues |
@@ -27,7 +34,7 @@
 | 周六 | M10 + M07 | 平台子域名 + 有公开定价/真实任务证据的人工服务 |
 | 周日 | 去重与周总结 | 只汇总候选池本周状态变化，不读逐日报告；推荐 1 个重点人工验证项目 |
 
-M12 只在**周六 M10 + M07 均已完成且当前合格推荐少于 3 条**时触发，最多产出 1 条候选；否则在汇总注明 `M12 未触发`。不挤占 M10/M07 固定组合。M11 只在仓库 `inputs/gsc-ga4/` 下有用户授权导出文件时作为额外人工数据分析，不替换固定周六组合；无文件则跳过并记 `blocked: missing user exports`。最多两个主要发现渠道；M03、M04 也可作为跨日验证步骤。渠道不可访问时记录 blocked，允许切换并记录原因。**日期基准与轮换星期统一使用 `Asia/Shanghai`（UTC+8）**，日报头部必须注明 `日期基准：Asia/Shanghai（UTC+8）`；若用户未来更改时区，先明确修改本 SOP 及对应任务设置后再生效，不能依赖运行服务器的时区。本次不创建任何日程。
+M12 只在**周六 M10 + M07 均已完成且当前合格推荐少于 3 条**时触发，最多产出 1 条候选；否则在汇总注明 `M12 未触发`。不挤占 M10/M07 固定组合。M11 只在仓库 `inputs/gsc-ga4/` 下有用户授权导出文件时作为额外人工数据分析，不替换固定周六组合；无文件则跳过并记 `blocked: missing user exports`。最多两个主要发现渠道；M03、M04 属于验证动作，可在其他工作日复用，不计为额外发现渠道。渠道不可访问时记录 blocked，允许切换并记录原因。**日期基准与轮换星期统一使用 `Asia/Shanghai`（UTC+8）**，日报头部必须注明 `日期基准：Asia/Shanghai（UTC+8）`；若用户未来更改时区，先明确修改本 SOP 及对应任务设置后再生效，不能依赖运行服务器的时区。本次不创建任何日程。
 
 ## 8 步执行：发现阶段允许证据缺失
 
@@ -47,7 +54,7 @@ M12 只在**周六 M10 + M07 均已完成且当前合格推荐少于 3 条**时�
 - **M01**：benny 的域龄、月访问量及搜索/直接流量占比四阈值仅供人工复核；自动流程只用公开新品、真实产品功能、价格及评论，不以未获付费流量数据为淘汰条件。
 - **M04**：自动流程仅访问公开定价、免费额度、App 内购价及可访问的公开收入披露；Stripe 等支付/引荐估算、收入排行榜付费数值不可得则 `unknown` 并交人工，不能凭价格或收银台访问虚构实际成交。
 - **M09**：自动流程只使用公开仓库搜索、README、Issues/Discussions 等可访问资料；`filename:SKILL.md`、`path:skills` 等登录后代码搜索属于人工授权补充。若不能访问则标记 `blocked`，不冒充搜索已完成。
-- **M02**：快照保存在 `data/sitemaps/<domain>.txt`，历史版先归档 `data/sitemaps/archive/<domain>/<timestamp>.txt` 再覆盖；首次建立基线不算新增，失败不可清空旧快照。候选池仅保留新增 URL 摘要。
+- **M02（外部方法）**：已从本任务的定时轮换移除。仅可消费既有 ABCD 监控的报告或用户提供的可追溯新 URL 清单，不自行产生 Sitemap 快照、增量报告或检查点。
 - **M08/TikTok**：如需要登录、反爬或授权，则不自动抓取；只处理用户授权提供的可追溯数据。
 - **M11**：没有有效用户授权聚合导出时跳过并记 `blocked`，不尝试使用用户的登录态。
 
@@ -132,9 +139,7 @@ M12 只在**周六 M10 + M07 均已完成且当前合格推荐少于 3 条**时�
 | `data/opportunities.jsonl` | 每 ID 一行的**当前快照**；包含 id、normalized_query、search_intent、scenario_type、status、previous_status（适用时）、last_score、score_coverage、first_seen、last_seen、evidence_urls、aliases、**recommended_today（布尔，默认 false）** | 同 ID 合并、**整份读取-合并-重写**；**禁止 status_history/score_history 内嵌数组** |
 | `data/history.jsonl` | **逻辑追加事件历史**；事件字段见下方完整 JSON 示例，含 `event_type` 和 `related_id` | 首次入库必须生成 `created`；状态/评分/证据/ID 迁移生成各自事件，按稳定事件 ID 幂等追加，不按候选 ID 覆盖历史 |
 | `reports/YYYY-MM-DD.md` | Asia/Shanghai 每日日报（可为 0 条） | 同日重跑先与旧日报合并，再整份重写 |
-| `data/checkpoints.json` | 源检查指针：source、last_success_at、last_failure_reason、consecutive_failures、last_snapshot_path | 不保存增量标记；增量来自 sitemap 快照比较 |
-| `data/sitemaps/<domain>.txt` | 该域名最新 URL 清单 | 成功生成新快照后再替换 |
-| `data/sitemaps/archive/<domain>/<timestamp>.txt` | 旧快照 | 每域名最多保留最近 **12 份**，清理时仅删最旧归档，不动当前快照 |
+| `data/checkpoints.json` | 普通信息源检查指针：source、last_success_at、last_failure_reason、consecutive_failures；旧测试中遗留的 last_snapshot_path 可只读保留但此后不再生成 | 不保存 Sitemap 差分标记；失败 ≥5 次建议转人工 |
 | `inputs/gsc-ga4/` | 用户手动投递授权的 GSC/GA4 聚合 CSV | **严格只读：自动任务不得创建、修改、删除任何文件**；不存在即 blocked |
 
 **history.jsonl 合法事件示例**（下面每行是一个独立、可解析 JSON 对象）：
@@ -147,7 +152,7 @@ M12 只在**周六 M10 + M07 均已完成且当前合格推荐少于 3 条**时�
 
 示例 `6f2a` 是**缩写占位 ID，非正式可用 SHA-256**；正式写入必须是完整 64 位 SHA-256。`event_type` 允许 `created`、`status_changed`、`score_changed`、`evidence_added`、`id_migrated`。`field` 是实际变化的字段名（如 `status`、`last_score`、`evidence_urls`、`id`），不得承载事件类型。`related_id` 仅在迁移时填旧 provisional ID，其余为 null。**首次入库一定写 `created`（`field=status`、`from=null`、`to=Signal` 或首次合法状态）**，即使一直没有后续评分也出现在本周新增中。对于 provisional 记录，创建时 `id` 可为 provisional ID，迁移事件的 `id` 为正式 ID；迁移后正常事件只用正式 ID。事件采用稳定 `event_id`（例如候选 id + event_type + 规范化变化值 + 首次发生时刻的 hash），同日重跑不得重复追加相同事件；`date` 按 Asia/Shanghai 带 `+08:00` 偏移。周日报告按本周 `event_type=created` 统计新增，并识别 `id_migrated` 后的同一主体，不重复计数。
 
-**写入顺序与异常**：先读取并计算合并后的候选快照、历史事件、当日报告，再逐项写入 GitHub。每个写操作须获取当前 SHA；409/冲突时重新获取并合并，禁止强制覆盖。GitHub 文件 API 不能原子提交多个文件；中途失败需明确标记 partial、下次以 ID + 事件键去重修复，绝不能谎称全成功。events 只追加逻辑记录，实际 GitHub 更新依旧可能需要整份文件重写，避免“追加 API”幻觉。sitemap 归档清理前确认最新快照成功且归档写入成功。
+**写入顺序与异常**：先读取并计算合并后的候选快照、历史事件、当日报告，再逐项写入 GitHub。每个写操作须获取当前 SHA；409/冲突时重新获取并合并，禁止强制覆盖。GitHub 文件 API 不能原子提交多个文件；中途失败需明确标记 partial、下次以 ID + 事件键去重修复，绝不能谎称全成功。events 只追加逻辑记录，实际 GitHub 更新依旧可能需要整份文件重写，避免“追加 API”幻觉。本任务禁止对 `data/sitemaps/` 执行写入、删除、清理或任何差分抓取。
 
 **同日重跑的 3 条上限**：先合并当天旧/新候选，证据 URL 去重，再按「证据可靠度 → 标准化得分率 → 覆盖维度」重新排序，重新选最多 **3 条合格推荐**；旧榜被挤出的记录保留原 status、只将 `recommended_today=false`，报告底部写「本次重跑替换 X 条」。不得仅追加在前三条后面。日报头必须包含 **`日期基准：Asia/Shanghai（UTC+8）`**。
 
@@ -155,11 +160,11 @@ M12 只在**周六 M10 + M07 均已完成且当前合格推荐少于 3 条**时�
 
 **周日周报**：只读 history.jsonl 在 Asia/Shanghai 本周的记录，其中 `created` 事件明确计入本周新发现（包括未升级的 Signal），必要时读取 opportunities 当前快照定位候选；不读取一周 reports 全文；开头注明「基于候选状态变更事件，非逐日运行报告回顾」。如果历史文件首次尚无事件，写暂无变更，不能由当前状态反推出不存在的历史。
 
-## 可直接给自动化调用的提示词（待审核）
+## 可直接给未来自动化调用的正式提示词（尚未创建任务）
 
-> 每轮从 https://github.com/owenlee669/reqs-geifei main 读取最新 docs/task-sop.md 和 docs/methods.md，严格按 SOP 执行；以 Asia/Shanghai 判定日期与周轮换。自动检查公开来源、实查可访问 SERP，不伪造 volume/KD/CPC。按规范化 query+意图+固定场景生成稳定 ID，Signal 不评分；Candidate 得分率≥60、至少3/5维且商业或 SEO 有真实可核查依据时才纳入最多3条的日报；Validated 必须有两条独立需求证据、商业化证据及 SERP/MVP 检查。M12 仅在周六固定组合完成且推荐未满3条时补一条。维护 opportunities 当前快照、history 追加事件、checkpoints 指针与 sitemap 快照；同日重跑合并重新排序后重写日报，保留被挤出者原始状态；周日仅读 history 本周变化生成周报。inputs/gsc-ga4/ 严格只读。无合格机会写0、不可访问数据写 unknown/blocked，连续5次失败建议人工。写库失败报告详情，不假称成功。
+> 每轮从 https://github.com/owenlee669/reqs-geifei main 读取最新 docs/task-sop.md 和 docs/methods.md，严格按 SOP v1.0 或后续版本执行；以 Asia/Shanghai 判定日期与周轮换，周一执行 M01+M03。M02 只作为可选的外部线索分析方法，不做 Sitemap 抓取、快照、URL 差分或监控；如已有 ABCD 报告只读引用并注明证据，不与旧任务重复扫描。自动检查公开来源、实查可访问 SERP，不伪造 volume/KD/CPC。按规范化 query+意图+固定场景生成稳定 ID，Signal 不评分；Candidate 得分率≥60、至少3/5维且商业或 SEO 有真实可核查依据时才纳入最多3条的日报；Validated 必须有两条独立需求证据、商业化证据及 SERP/MVP 检查。M12 仅在周六固定组合完成且推荐未满3条时补一条。维护 opportunities 当前快照、history 追加事件、普通来源 checkpoints；不创建或修改 Sitemap 快照；同日重跑合并重新排序后重写日报，保留被挤出者原始状态；周日仅读 history 本周变化生成周报。inputs/gsc-ga4/ 严格只读。无合格机会写0、不可访问数据写 unknown/blocked，连续5次失败建议人工。写库失败报告详情，不假称成功。
 
 ## 需用户最终确认（不影响本次文档提交）
-实际运行时间和频率；最终推送渠道（默认只写 GitHub 仓库文件）；第三方数据工具授权范围（默认仅公开免费数据）；与现有需求扫描任务的边界。**已确定：零合格机会也写含 0 条日报**。日期基准暂按本次 Issue 指定的 `Asia/Shanghai` 写入 SOP，启用前核对运行配置能否按 SOP 约定的 Asia/Shanghai 日期与轮换执行；不得改用服务器时区。
+**启动前仅需配置**：实际运行时间和频率（未指定，不擅自创建）；推送渠道默认只写 GitHub 仓库文件；第三方数据默认只使用可公开免费访问的数据。与旧 ABCD 任务边界已经明确：本任务不监控 Sitemap。**零合格机会写含 0 条日报**；正式任务调度必须按固定的 Asia/Shanghai 日历日期判定。
 
-**仅文档草案，尚未激活任务。**
+**v1.0 规则正式定稿。文档发布不等于自动化已启用。**
