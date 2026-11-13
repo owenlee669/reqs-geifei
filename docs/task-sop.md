@@ -1,6 +1,10 @@
 # GPT 需求发现定时任务 SOP 草案（待用户审核，未启用）
 
-版本 v0.3 / 2026-11-13（Issue #1 第二轮复审修订）。此文件是供未来 GPT 自动任务读取的执行规格，**并未创建任何定时任务**。
+版本 v0.4 / 2026-11-13（Issue #1 第三轮复审修订）。此文件是供未来 GPT 自动任务读取的执行规格，**并未创建任何定时任务**。
+
+## 文档权责
+
+本文件是唯一执行规范：**状态定义、升级门槛、评分、去重键、周轮换、写入规则**只能在这里维护。`docs/methods.md` 只描述 M01–M12 的操作、证据类型、可用数据源及限制。发生表述不同时以本 SOP 为准，修订时同步检查方法文档是否仍有相互冲突的陈述。
 
 ## 目标
 发现适合单人低成本运营、英语 SEO 可获客的精品工具页、Micro SaaS、AI 图片/视频细分工具及 H5 游戏相关需求。优先开发验证时间在 7 天内、总计约 8–12 工时以内、可复用 Next.js/React/Tailwind/Cloudflare 或 Vercel 的机会。先需求验证，不直接开发。
@@ -23,7 +27,7 @@
 | 周六 | M10 + M07 | 平台子域名 + 有公开定价/真实任务证据的人工服务 |
 | 周日 | 去重与周总结 | 只汇总候选池本周状态变化，不读逐日报告；推荐 1 个重点人工验证项目 |
 
-M12 作为周六有剩余额度时的补充，不挤占 M10/M07 固定组合。M11 只在仓库 `inputs/gsc-ga4/` 下有用户授权导出文件时作为额外人工数据分析，不替换固定周六组合；无文件则跳过并记 `blocked: missing user exports`。最多两个主要发现渠道；M03、M04 也可作为跨日验证步骤。渠道不可访问时记录 blocked，允许切换并记录原因。任务按实际运行所在时区确定星期，不创建任何日程。
+M12 作为有剩余时间时的补充，不挤占 M10/M07 的周六固定组合。M11 只在仓库 `inputs/gsc-ga4/` 下有用户授权导出文件时作为额外人工数据分析，不替换固定周六组合；无文件则跳过并记 `blocked: missing user exports`。最多两个主要发现渠道；M03、M04 也可作为跨日验证步骤。渠道不可访问时记录 blocked，允许切换并记录原因。任务按实际运行所在时区确定星期，不创建任何日程。
 
 ## 8 步执行：发现阶段允许证据缺失
 
@@ -38,15 +42,24 @@ M12 作为周六有剩余额度时的补充，不挤占 M10/M07 固定组合。M
 
 **Validated Opportunity 的硬门槛**：至少两条独立真实需求证据、一条可信商业化证据，以及经确认的 SERP 分析和 MVP 可行性判断。得分高不能绕过门槛；Signal 和 Keyword Candidate 不因缺证据而禁止入库。
 
+## 方法数据依赖与降级路径
+
+- **M01**：benny 的域龄、月访问量及搜索/直接流量占比四阈值仅供人工复核；自动流程只用公开新品、真实产品功能、价格及评论，不以未获付费流量数据为淘汰条件。
+- **M04**：自动流程仅访问公开定价、免费额度、App 内购价及可访问的公开收入披露；Stripe 等支付/引荐估算、收入排行榜付费数值不可得则 `unknown` 并交人工，不能凭价格或收银台访问虚构实际成交。
+- **M09**：自动流程只使用公开仓库搜索、README、Issues/Discussions 等可访问资料；`filename:SKILL.md`、`path:skills` 等登录后代码搜索属于人工授权补充。若不能访问则标记 `blocked`，不冒充搜索已完成。
+- **M02**：快照保存在 `data/sitemaps/<domain>.txt`，历史版先归档 `data/sitemaps/archive/<domain>/<timestamp>.txt` 再覆盖；首次建立基线不算新增，失败不可清空旧快照。候选池仅保留新增 URL 摘要。
+- **M08/TikTok**：如需要登录、反爬或授权，则不自动抓取；只处理用户授权提供的可追溯数据。
+- **M11**：没有有效用户授权聚合导出时跳过并记 `blocked`，不尝试使用用户的登录态。
+
 ## M11 用户授权数据的投递规范
 
-仅从仓库 `inputs/gsc-ga4/` 读取用户明确提供的导出文件，不默认能访问 GSC 或 GA4 登录账户。推荐命名 `gsc_queries_pages_YYYY-MM-DD.csv` 与 `ga4_landing_pages_YYYY-MM-DD.csv`；GSC 至少包含 date、query、page、clicks、impressions、ctr、position（若导出是区间聚合数据，另附起止日期说明）；GA4 至少包含 date、landing_page、sessions、engagement_rate、average_engagement_time，及分析范围。两份数据必须标明属性/站点、时区、时间区间及维度定义。按规范化落地页关联，不能把不同粒度数据直接当成逐查询的会话时长。缺一份、无授权、格式不符或数据无法访问时：**跳过 M11 并记 blocked**，不能声称已完成检查。仓库是公开的，严禁上传含个人身份信息、密钥、用户级事件记录的原始数据。
+仅从仓库 `inputs/gsc-ga4/` 读取用户明确提供的导出文件，不默认能访问 GSC 或 GA4 登录账户。推荐命名 `gsc_queries_pages_YYYY-MM-DD.csv` 与 `ga4_landing_pages_YYYY-MM-DD.csv`；GSC 至少包含 date、query、page、clicks、impressions、ctr、position（若导出是区间聚合数据，另附起止日期说明）；GA4 至少包含 date、landing_page、sessions、engagement_rate、average_engagement_time，及分析范围。两份数据必须标明属性/站点、时区、时间区间及维度定义。按 **域名+路径** 关联：从 GSC 完整 URL 提取 hostname/pathname，GA4 路径补充站点域名；去协议、`www.`、尾斜杠、查询参数；默认路径小写，但若实际路由区分大小写，应遵从 canonical 防止错配。统一属性/时区，时间范围取两份导出的交集，记录各自最新日期（GSC 数据常延迟，不强行假定恰好两天）。报告匹配、未匹配页面数量及未匹配占比；页面级 GA4 参与指标**不能归因到某一个 GSC 搜索词**，不能将不同粒度直接解释为查询级停留时间。缺一份、无授权、格式不符或数据无法访问时：**跳过 M11 并记 blocked**，不能声称已完成检查。仓库是公开的，严禁上传含个人身份信息、密钥、用户级事件记录的原始数据。
 
 ## 人工补数据及数据分工
 
 任务负责获取公开可访问的产品、帖子、评论和 SERP，提炼用户动作、关键词、竞品类型及供给缺口。用户用 Semrush/Ahrefs 等核实无法获取的 volume、KD、CPC；不可获取的值必须显示 unknown 并进入「人工待核」部分。
 
-小红书、抖音、闲鱼、招聘 JD，以及需要登录或有反爬限制的 YouTube 评论，不绕过限制自动抓取；只接收用户授权提供的截图、文本、合法导出或链接，并标记人工提供、尚需复核。公开可合法访问的 YouTube 评论可分析。中文平台受众数据不能自动转化为英语市场证据。
+小红书、抖音、TikTok、闲鱼、招聘 JD，以及需要登录或有反爬限制的 YouTube 评论，不绕过限制自动抓取；只接收用户授权提供的截图、文本、合法导出或链接，并标记人工提供、尚需复核。公开可合法访问的 YouTube 评论可分析。中文平台受众数据不能自动转化为英语市场证据。
 
 ## 产出数量与注意力限制
 
@@ -101,7 +114,8 @@ M12 作为周六有剩余额度时的补充，不挤占 M10/M07 固定组合。M
 ## 未来执行时建议的仓库存储
 - `reports/YYYY-MM-DD.md`：逐日运行记录。
 - `data/opportunities.jsonl`：唯一常规去重/周报来源，包含按词+意图+场景生成的稳定 ID、first_seen/last_seen、status、status_history、score_history（含时间）、evidence_url(s)、competitor_domains、keywords、各维度 earned/max/unknown、覆盖权重；按 ID 合并、保留旧记录与变化史。
-- `data/checkpoints.json`：每个监测源的最近成功扫描时间、失败原因和增量标记。
+- `data/checkpoints.json`：每个监测源最近成功扫描时间、失败原因和增量标记。
+- `data/sitemaps/<domain>.txt`：站点 URL 清单快照；`data/sitemaps/archive/<domain>/<timestamp>.txt`：覆盖前旧版归档。全量 sitemap 绝不写入 opportunities.jsonl。
 
 **同日重跑写入规范**：先读取现有 `reports/YYYY-MM-DD.md` 与候选池，把当日新增记录按 ID 合并（保留先前证据与检查结果、更新最后检查时间）；最终**整份重写该日期的 report**，不直接盲目覆盖也不重复追加。同一证据 URL 去重；`opportunities.jsonl` 按稳定 ID 做 upsert（存在则合并/更新该行，不存在才追加新行），不得原样无限追加重复对象。先获取最新 SHA，写入前冲突要重新读取并合并，禁止强制覆盖。写入失败报告原因。原始剪存目录始终只读。
 
