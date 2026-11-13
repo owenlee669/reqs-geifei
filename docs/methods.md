@@ -1,6 +1,6 @@
 # 需求挖掘方法合并与原始证据
 
-更新：2026-11-13（Issue #1 第三轮复审，配合 SOP v0.4）。来源：仓库已有的三篇 Web.Cafe 剪存 Markdown（见文末）。它们是**方法分享和作者自述**，不是我们已实测验证的市场机会。归并相同动作，不因平台名称不同就重复执行。
+更新：2026-11-13（Issue #1 第四轮复审，配合 SOP v0.5）。来源：仓库已有的三篇 Web.Cafe 剪存 Markdown（见文末）。它们是**方法分享和作者自述**，不是我们已实测验证的市场机会。归并相同动作，不因平台名称不同就重复执行。
 
 ## 统一流程
 
@@ -8,17 +8,19 @@
 
 **规则唯一来源**：状态定义、升级门槛、去重键与评分口径统一见 [task-sop.md §状态与评分](./task-sop.md#状态与评分分阶段缺失数据不扣零分)。本文件只定义发现方法、证据类型与操作步骤，不重复制定状态或去重规则。点赞、Star、Trends、sitemap 新页只是线索，不能独立证明付费需求。
 
+**优先级标签的含义**：P0=每轮发现、验证或排序时优先使用的核心方法；P1=按固定周轮换或授权数据条件执行的补充方法；P2=仅满足 SOP 指定触发条件时执行的延展方法。**标签不代表每周运行次数**；固定频率与 M12 触发条件以 [task-sop.md §固定周轮换表](./task-sop.md#固定周轮换表) 为准，不能依据 P0/P1 自行改轮换。
+
 ## 12 条归并后的可操作方法
 
 ### M01 新产品榜单 / 增长站反查非品牌关键词（P0）
-**入口**：Product Hunt 每日新品、Toolify 新品/增长/收入榜、Traffic.cv、BetaList、V2EX 分享创造、Indie Hackers 收入案例、[Google Play 付费应用榜入口](https://play.google.com/store/apps)、[Apple App Store 榜单](https://apps.apple.com/us/iphone/charts)。付费榜是支付意图与市场存在的线索，不证明具体收入，需记录地域、榜单日期与类别。  
-**步骤**：读取榜单及项目主页 URL → 域名去重 → 核查产品解决的用户动作与收费模式 → 通过 Similarweb/Semrush/Ahrefs（可获得时）找主要流量落地页、自然搜索词、来源地区 → 剔除纯品牌词 → 取 1–3 个真实用户会搜索的需求词 → 实际查看 Google SERP/竞争网站。付费 App 同时查看低星评论、具体功能和是否存在网页版需求。  
+**入口（自动侧）**：Product Hunt 每日新品、Toolify 公开新品/增长榜（不读取需授权的收入数值）、Traffic.cv 公开页面、BetaList、V2EX 分享创造、Indie Hackers 公开产品/收入案例、[Google Play 付费应用榜入口](https://play.google.com/store/apps)、[Apple App Store 榜单](https://apps.apple.com/us/iphone/charts)。**人工侧**：Toolify 收入榜、TrustMRR 或其他需会员/登录的收入与流量指标，未经授权统一记 unknown，不用来筛掉自动发现的新产品。付费榜是支付意图与市场存在的线索，不证明具体收入，需记录地域、榜单日期与类别。  
+**步骤**：读取公开榜单及项目主页 URL → 产品/需求证据去重 → 核查用户动作、公开功能与收费模式 → 可获取合法授权时才使用 Similarweb/Semrush/Ahrefs 的流量、落地页与来源地区，否则填 unknown 并交人工 → 排除纯品牌词 → 提取 1–3 个自然英文需求词 → 实查公开 Google SERP/竞争网站。付费 App 同时查看低星评论、具体功能和是否存在网页版需求。  
 **原文案例（仅供人工复核，自动任务不得作为硬过滤条件）**：benny 建议 Product Hunt API 获取前一天产品，再检查「域龄 <1 年、月流量 >3,000、自然搜索占比 >20%、直接访问占比 >20%」，称约每 300 个 PH 产品筛出一个。以上是作者个人经验，均需有对应时间和来源数据才能应用。自动扫描默认只用公开可访问的产品发布日期、功能、定价、用户反馈与页面证据入库；未授权的 Similarweb 估计流量与渠道占比一律记 `unknown`，不臆测域龄或流量，也不因缺数据淘汰新站。  
 **原始依据**：[私藏方法](https://new.web.cafe/ask/bounty/fd0wrgx7fh)；[网站和页面](https://new.web.cafe/ask/bounty/0jch5yv6g7)。
 
 ### M02 头部/竞品 sitemap 增量，反推新词（P0）
 **入口**：公开 sitemap.xml / sitemap index、工具目录分类页、竞品新功能页。  
-**步骤**：首次 URL 快照保存为 `data/sitemaps/<domain>.txt`（域名转小写且去除不安全路径字符）；再次扫描时先读取旧版并将其归档至 `data/sitemaps/archive/<domain>/<YYYY-MM-DDTHHMMSS>.txt`，然后生成新快照，比对规范化 URL 差集（不单凭 lastmod）→ 排除参数、语言/分页/模板重复 → 提取新增 URL 的 title/H1/正文用户动作 → 生成英文关键词并做 SERP 验证。`data/opportunities.jsonl` 仅保存相关新增 URL 摘要、数量和来源，不存整份 sitemap。**首次扫描只有基线，不得宣称新增**；访问失败保留旧快照，标记 blocked，不能覆盖为空。  
+**步骤**：首次 URL 快照保存为 `data/sitemaps/<domain>.txt`（域名转小写且去除不安全路径字符）；再次扫描读取旧快照，先生成新快照并确认成功，再将旧版归档至 `data/sitemaps/archive/<domain>/<YYYY-MM-DDTHHMMSS>.txt`，归档成功后更新当前快照；**每域名归档只保留最近 12 份**，其余清理，清理失败要记录 → 比对规范化 URL 差集（不单凭 lastmod）→ 排除参数、语言/分页/模板重复 → 提取新增 URL 的 title/H1/正文用户动作 → 生成英文关键词并做 SERP 验证。`data/opportunities.jsonl` 仅保存相关新增 URL 摘要、数量和来源，不存整份 sitemap。**首次扫描只有基线，不得宣称新增**；访问失败保留旧快照，标记 blocked，不能覆盖为空。  
 **限制**：大站上新页面是“投资布局信号”，不是已证明流量/收入。  
 **依据**：[私藏方法](https://new.web.cafe/ask/bounty/fd0wrgx7fh)；[验证方法](https://new.web.cafe/ask/bounty/k3ivgzypq1)。
 
